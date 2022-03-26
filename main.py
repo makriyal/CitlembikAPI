@@ -32,7 +32,7 @@ class Scraper():
                     item = {
                         'title' : res.find('a>img', first=True).attrs['title'],
                         'img' : res.find('a>img', first=True).attrs['data-src'],
-                        'img_alt' : res.find('a.img > img', first=True).attrs['data-src'],
+                        'img_alt' : res.find('a>img', first=True).attrs['data-src'],
                         'link' : res.find('a', first=True).attrs['href'],
                         'publisher' : res.find('div.prd_info > div.publisher', first=True).text.strip(),
                         'author' : res.find('div.prd_info > div.writer > a', first=True).text.strip(),
