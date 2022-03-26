@@ -1,27 +1,54 @@
+from asyncio.windows_events import NULL
+from tokenize import Double
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from requests_html import HTMLSession
 
 class Scraper():
-    def scrapedata(self):
-        url = 'https://www.kitapsec.com/Arama/index.php?a=Astronomi&AnaKat=Bilim-Kitaplari'
+    def scrapedata(self, site, sorgu):
+        # url = 'https://www.kitapsec.com/Arama/index.php?a=Astronomi&AnaKat=Bilim-Kitaplari'
         s = HTMLSession()
-        r = s.get(url)
-        print(r.status_code)
+        # r = s.get(url)
+        r = s.get(sorgu)
+        # print(r.status_code)
 
         qlist = []
-        quotes = r.html.find('div.Ks_UrunSatir')
-        for q in quotes :
-            item = {
-                'title' : q.find('a.img > img', first=True).attrs['title'],
-                'img' : q.find('a.img > img', first=True).attrs['src'],
-                'img_alt' : q.find('a.img > img', first=True).attrs['data-src'],
-                'link' : q.find('a.text', first=True).attrs['href'],
-                'publisher' : q.find('span.yynImg > div > a', first=True).text.strip(),
-                'author' : q.find('span[itemprop=author]', first=True).text.strip(),
-            }
-            print(item)
-            qlist.append(item)
+        if site == "kitapsec":
+            results = r.html.find('div.Ks_UrunSatir')
+            for res in results :
+                item = {
+                    'title' : res.find('a.img > img', first=True).attrs['title'],
+                    'img' : res.find('a.img > img', first=True).attrs['src'],
+                    'img_alt' : res.find('a.img > img', first=True).attrs['data-src'],
+                    'link' : res.find('a.text', first=True).attrs['href'],
+                    'publisher' : res.find('span.yynImg > div > a', first=True).text.strip(),
+                    'author' : res.find('span[itemprop=author]', first=True).text.strip(),
+                }
+                qlist.append(item)
+        elif site == "halk":
+            if "index.php?" in sorgu:
+                results = r.html.find('div.prd_list_container_box > div > ul > li > div')
+                for res in results :
+                    item = {
+                        'title' : res.find('a>img', first=True).attrs['title'],
+                        'img' : res.find('a>img', first=True).attrs['data-src'],
+                        'img_alt' : res.find('a.img > img', first=True).attrs['data-src'],
+                        'link' : res.find('a', first=True).attrs['href'],
+                        'publisher' : res.find('div.prd_info > div.publisher', first=True).text.strip(),
+                        'author' : res.find('div.prd_info > div.writer > a', first=True).text.strip(),
+                    }
+                    qlist.append(item)
+            else :
+                item = {
+                        'title' : r.html.find('div > div.col2.__col2 > h1', first=True).text.strip(),
+                        'img' : r.html.find('#main_img', first=True).attrs['src'],
+                        'img_alt' : r.html.find('#main_img', first=True).attrs['data-zoom-image'],
+                        'link' : sorgu,
+                        'publisher' : r.html.find('div.prd_brand_box > a.publisher', first=True).text.strip(),
+                        'author' : r.html.find('div.prd_info > div.writer > a', first=True).text.strip(),
+                    }
+                qlist.append(item)
+                
         return qlist
 
 app = FastAPI()
@@ -40,6 +67,6 @@ app.add_middleware(
 
 quotes = Scraper()
 
-@app.get("/")
-async def read_item():
+@app.get("/{site}/{sorgu}")
+async def get_results():
     return quotes.scrapedata()
