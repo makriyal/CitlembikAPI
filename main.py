@@ -67,6 +67,6 @@ app.add_middleware(
 
 quotes = Scraper()
 
-@app.get("/{site}/{sorgu}")
+@app.get("/{site}|{sorgu}")
 async def get_results(site, sorgu):
     return quotes.scrapedata(site, sorgu)
