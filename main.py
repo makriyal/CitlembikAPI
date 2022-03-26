@@ -7,11 +7,12 @@ class Scraper():
         # url = 'https://www.kitapsec.com/Arama/index.php?a=Astronomi&AnaKat=Bilim-Kitaplari'
         s = HTMLSession()
         # r = s.get(url)
-        r = s.get(sorgu)
+        # r = s.get(sorgu)
         # print(r.status_code)
 
         results_list = []
         if site == "kitapsec":
+            r = s.get(sorgu)
             results = r.html.find('div.Ks_UrunSatir')
             for res in results :
                 item = {
@@ -24,7 +25,8 @@ class Scraper():
                 }
                 results_list.append(item)
         elif site == "halk":
-            if "index.php?" in sorgu:
+            if "index.php?" not in sorgu:
+                r = s.get("https://www.halkkitabevi.com/index.php?p=Products&" + sorgu)
                 results = r.html.find('div.prd_list_container_box > div > ul > li > div')
                 for res in results :
                     item = {
@@ -37,6 +39,7 @@ class Scraper():
                     }
                     results_list.append(item)
             else :
+                r = s.get(sorgu)
                 item = {
                         'title' : r.html.find('div > div.col2.__col2 > h1', first=True).text.strip(),
                         'img' : r.html.find('#main_img', first=True).attrs['src'],
@@ -65,6 +68,6 @@ app.add_middleware(
 
 results = Scraper()
 
-@app.get("/{site}{sorgu}")
+@app.get("/site/{site}/sorgu/{sorgu}")
 async def get_results(site, sorgu):
     return results.scrapedata(site, sorgu)
