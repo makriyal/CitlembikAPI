@@ -1,5 +1,3 @@
-from asyncio.windows_events import NULL
-from tokenize import Double
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from requests_html import HTMLSession
@@ -12,7 +10,7 @@ class Scraper():
         r = s.get(sorgu)
         # print(r.status_code)
 
-        qlist = []
+        results_list = []
         if site == "kitapsec":
             results = r.html.find('div.Ks_UrunSatir')
             for res in results :
@@ -24,7 +22,7 @@ class Scraper():
                     'publisher' : res.find('span.yynImg > div > a', first=True).text.strip(),
                     'author' : res.find('span[itemprop=author]', first=True).text.strip(),
                 }
-                qlist.append(item)
+                results_list.append(item)
         elif site == "halk":
             if "index.php?" in sorgu:
                 results = r.html.find('div.prd_list_container_box > div > ul > li > div')
@@ -37,7 +35,7 @@ class Scraper():
                         'publisher' : res.find('div.prd_info > div.publisher', first=True).text.strip(),
                         'author' : res.find('div.prd_info > div.writer > a', first=True).text.strip(),
                     }
-                    qlist.append(item)
+                    results_list.append(item)
             else :
                 item = {
                         'title' : r.html.find('div > div.col2.__col2 > h1', first=True).text.strip(),
@@ -47,9 +45,9 @@ class Scraper():
                         'publisher' : r.html.find('div.prd_brand_box > a.publisher', first=True).text.strip(),
                         'author' : r.html.find('div.prd_info > div.writer > a', first=True).text.strip(),
                     }
-                qlist.append(item)
+                results_list.append(item)
                 
-        return qlist
+        return results_list
 
 app = FastAPI()
 
@@ -65,8 +63,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-quotes = Scraper()
+results = Scraper()
 
-@app.get("/{site}|{sorgu}")
+@app.get("/{site}{sorgu}")
 async def get_results(site, sorgu):
-    return quotes.scrapedata(site, sorgu)
+    return results.scrapedata(site, sorgu)
