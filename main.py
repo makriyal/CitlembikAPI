@@ -59,7 +59,7 @@ class Scraper():
             else :
                 print("sorgu.isNotdigit()")
                 if sorgu == "null":
-                    link = allLinksHalk[kategori][altkategori]
+                    link = allLinksHalk[int(kategori)][int(altkategori)]
                 else :
                     link = "https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q=" + sorgu + "&page=" + sayfa
                 r = s.get(link)
