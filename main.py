@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from requests_html import HTMLSession
 
 class Scraper():
-    def scrapedata(self, site, sorgu):
+    def scrapedata(self, site, link, sorgu):
         # url = 'https://www.kitapsec.com/Arama/index.php?a=Astronomi&AnaKat=Bilim-Kitaplari'
         s = HTMLSession()
         # r = s.get(url)
@@ -26,7 +26,7 @@ class Scraper():
                 results_list.append(item)
         elif site == "halk":
             if sorgu.isdigit():
-                r = s.get("https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&ctg_id=&q="+sorgu)
+                r = s.get("https://www.halkkitabevi.com/"+link)
                 try:
                     title = r.html.find('div > div.col2.__col2 > h1', first=True).text.strip()
                 except:
@@ -57,7 +57,7 @@ class Scraper():
                     }
                 results_list.append(item)
             else :
-                r = s.get("https://www.halkkitabevi.com/index.php?p=Products&" + sorgu)
+                r = s.get("https://www.halkkitabevi.com/"+link)
                 results = r.html.find('div.prd_list_container_box > div > ul > li > div')
                 for res in results :
                     try:
@@ -110,6 +110,6 @@ app.add_middleware(
 
 results = Scraper()
 
-@app.get("/site/{site}/sorgu/{sorgu}")
-async def get_results(site, sorgu):
-    return results.scrapedata(site, sorgu)
+@app.get("/site[{site}]link[{link}]sorgu[{sorgu}]")
+async def get_results(site, link, sorgu):
+    return results.scrapedata(site, link, sorgu)
