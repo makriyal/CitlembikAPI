@@ -1,18 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from requests_html import HTMLSession
+import halk_linkler
 
 class Scraper():
-    def scrapedata(self, site, link, sorgu):
-        # url = 'https://www.kitapsec.com/Arama/index.php?a=Astronomi&AnaKat=Bilim-Kitaplari'
+
+    def scrapedata(self, site, kategori, altkategori, link, sorgu, sayfa):
+        
         s = HTMLSession()
-        # r = s.get(url)
-        # r = s.get(sorgu)
-        # print(r.status_code)
 
         results_list = []
-        if site == "kitapsec":
-            r = s.get(sorgu)
+
+        if site == "1":
+            r = s.get(link)
             results = r.html.find('div.Ks_UrunSatir')
             for res in results :
                 item = {
@@ -24,9 +24,10 @@ class Scraper():
                     'author' : res.find('span[itemprop=author]', first=True).text.strip(),
                 }
                 results_list.append(item)
-        elif site == "halk":
+        elif site == "2":
+            
             if sorgu.isdigit():
-                r = s.get("https://www.halkkitabevi.com/"+link)
+                r = s.get("https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q="+sorgu)
                 try:
                     title = r.html.find('div > div.col2.__col2 > h1', first=True).text.strip()
                 except:
@@ -57,7 +58,7 @@ class Scraper():
                     }
                 results_list.append(item)
             else :
-                r = s.get("https://www.halkkitabevi.com/"+link)
+                r = s.get(link)
                 results = r.html.find('div.prd_list_container_box > div > ul > li > div')
                 for res in results :
                     try:
@@ -110,6 +111,6 @@ app.add_middleware(
 
 results = Scraper()
 
-@app.get("/site[{site}]link[{link}]sorgu[{sorgu}]")
-async def get_results(site, link, sorgu):
-    return results.scrapedata(site, link, sorgu)
+@app.get("/s={site}/k={kategori}/ak={altkategori}/l={link}/sr={sorgu}/sf={sayfa}")
+async def get_results(site, kategori, altkategori, link, sorgu, sayfa):
+    return results.scrapedata(site, kategori, altkategori, link, sorgu, sayfa)
