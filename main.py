@@ -4,7 +4,6 @@ from requests_html import HTMLSession
 from halk_linkler import allLinksHalk
 
 class Scraper():
-
     def scrapedata(self, site, kategori, altkategori, link, sorgu, sayfa):
         
         s = HTMLSession()
