@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from requests_html import HTMLSession
+from halk_linkler import allLinksHalk
 
 class Scraper():
 
@@ -58,6 +59,10 @@ class Scraper():
                 results_list.append(item)
             else :
                 print("sorgu.isNotdigit()")
+                if sorgu == "null":
+                    link = allLinksHalk[kategori][altkategori]
+                else :
+                    link = "https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q=" + sorgu + "&page=" + sayfa
                 r = s.get(link)
                 results = r.html.find('div.prd_list_container_box > div > ul > li > div')
                 for res in results :
