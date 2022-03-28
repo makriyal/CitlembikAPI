@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from requests_html import HTMLSession
-from halk_linkler import allLinksHalk
+from halk_linkler import allLinksHalk, allSubCategoriesHalk
+from kitapsec_linkler import allLinksKitapsec, allSubCategoriesKitapsec
 
 class Scraper():
     def scrapedata(self, site, kategori, altkategori, link, sorgu, sayfa):
@@ -118,3 +119,12 @@ results = Scraper()
 @app.get("/{site}/{kategori}/{altkategori}/{link}/{sorgu}/{sayfa}")
 async def get_results(site, kategori, altkategori, link, sorgu, sayfa):
     return results.scrapedata(site, kategori, altkategori, link, sorgu, sayfa)
+
+
+@app.get("/{site}/{index}")
+async def get_subcategories(site, index):
+    if site == "kitapsec":
+        return allSubCategoriesKitapsec[int(index)]
+    elif site == "halk":
+        return allSubCategoriesHalk[int(index)]
+    
