@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from requests_html import HTMLSession
@@ -99,6 +100,81 @@ class Scraper():
                     results_list.append(item)
                 
         return results_list
+    
+    def getPrice(self, site, isbn, name, author, publisher):
+        s = HTMLSession()
+
+        price_list = []
+
+        if site == "amazon":
+            url = "https://www.amazon.com.tr/s?k="+isbn
+            r = s.get(url)
+            try :
+                noStock = r.html.find('span.a-size-small', first=True).text.strip()
+                if noStock != NULL & "mevcut değil" in noStock :
+                    raise Exception("fetchPriceAmazon noStock raised an exception")
+                cantFind = r.html.find('span > div > div > div:nth-child(1) > span:nth-child(2)', first=True).text.strip()
+                if cantFind != NULL & "sonuç yok" in cantFind :
+                    raise Exception("fetchPriceAmazon cantFind raised an exception")
+            except :
+                print("fetchPriceAmazon exception")
+
+            imgUrl = "https://m.media-amazon.com/images/G/41/logo/Amazon_com_tr_Logo._CB1198675309_.jpg"
+
+            price = r.html.find('span.a-price', first=True).text.strip()
+            tlIx = price.index("TL")
+            price_ = price[:tlIx];
+            return {
+                'site' : "amazon.com.tr",
+                'price' : float(price_.replace(",", ".").replace(" TL", "")),
+                'imgUrl' : imgUrl,
+                'link' : url,
+            }
+        elif site == "halk":
+            url = "https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q="+isbn
+            r = s.get(url)
+            try :
+                noStock = r.html.find('div.prd_no_sell', first=True).text.strip()
+                if noStock != NULL & "Stokta yok" in noStock :
+                    raise Exception
+                cantFind = r.html.find('div.no_product_found', first=True).text.strip()
+                if cantFind != NULL & "bulunamadı" in cantFind :
+                    raise Exception
+            except :
+                print("fetchHalk exception")
+
+            imgUrl = "https://www.halkkitabevi.com" + r.html.find('div > div > div.logo > a > img', first=True).attrs['src']
+
+            price = r.html.find('#prd_final_price_display', first=True).text.strip()
+            tlIx = price.index("TL")
+            price_ = price[:tlIx];
+            return {
+                'site' : "Halk Kitabevi",
+                'price' : float(price_.replace(",", ".").replace(" TL", "").replace("TL", "")),
+                'imgUrl' : imgUrl,
+                'link' : url,
+            }
+        elif site == "kitapsec":
+            url = "https://www.kitapsec.com/Arama/index.php?a="+isbn
+            r = s.get(url)
+            try :
+                cantFind = r.html.find('div.Ks_BodyBack > div > div > div > div:nth-child(2) > div', first=True).text.strip()
+                if cantFind != NULL & "bulunamadı" in cantFind :
+                    raise Exception
+            except :
+                print("fetchKitapsec exception")
+
+            imgUrl = "https:" + r.html.find('div.fullBack.Ks_HeaderColor > div > div > table > tbody > tr > td:nth-child(1) > a > img', first=True).attrs['src']
+
+            price = r.html.find('#prd_final_price_display', first=True).text.strip()
+            tlIx = price.index("TL")
+            price_ = price[:tlIx];
+            return {
+                'site' : "Kitapseç",
+                'price' : float(price_.replace(",", ".").replace(" TL", "").replace("TL", "")),
+                'imgUrl' : imgUrl,
+                'link' : url,
+            }
 
 app = FastAPI()
 
@@ -116,6 +192,12 @@ app.add_middleware(
 
 results = Scraper()
 
+
+# print("amazon : "+results.getPrice("amazon", "9750803736","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları") + "\n")
+print("halk : "+results.getPrice("halk", "9750803736","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları") + "\n")
+print("kitapsec : "+results.getPrice("kitapsec", "9750803736","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları") + "\n")
+
+
 @app.get("/{site}/{kategori}/{altkategori}/{link}/{sorgu}/{sayfa}")
 async def get_results(site, kategori, altkategori, link, sorgu, sayfa):
     return results.scrapedata(site, kategori, altkategori, link, sorgu, sayfa)
@@ -127,4 +209,8 @@ async def get_subcategories(site, index):
         return allSubCategoriesKitapsec[int(index)]
     elif site == "halk":
         return allSubCategoriesHalk[int(index)]
+
+@app.get("/{site}/{isbn}/{name}/{author}/{publisher}")
+async def get_results(site, isbn, name, author, publisher):
+    return results.getPrice(site, isbn, name, author, publisher)
     
