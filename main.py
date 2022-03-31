@@ -102,12 +102,12 @@ class Scraper():
         return results_list
     
     def getPrice(self, site, isbn, name, author, publisher):
-        s = HTMLSession()
 
-        price_list = []
+        s = HTMLSession()
 
         if site == "amazon":
             url = "https://www.amazon.com.tr/s?k="+isbn
+            # print(url)
             r = s.get(url)
             try :
                 noStock = r.html.find('span.a-size-small', first=True).text.strip()
@@ -132,30 +132,67 @@ class Scraper():
             }
         elif site == "halk":
             url = "https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q="+isbn
+            # print(url)
             r = s.get(url)
+            # try :
+            #     noStock = r.html.find('div.prd_no_sell', first=True).text.strip()
+            #     if noStock != NULL & "Stokta yok" in noStock :
+            #         raise Exception
+            #     cantFind = r.html.find('div.no_product_found', first=True).text.strip()
+            #     if cantFind != NULL & "bulunamadı" in cantFind :
+            #         raise Exception
+            # except :
+            #     print("fetchHalk exception")
+
+            imgUrl = "https://www.halkkitabevi.com/u/halkkitabevi/halk-kitabevi-1580467677-1582817300-1585232584.png"
+
             try :
                 noStock = r.html.find('div.prd_no_sell', first=True).text.strip()
-                if noStock != NULL & "Stokta yok" in noStock :
-                    raise Exception
-                cantFind = r.html.find('div.no_product_found', first=True).text.strip()
-                if cantFind != NULL & "bulunamadı" in cantFind :
-                    raise Exception
+                if noStock != NULL & ("Stokta yok" in noStock) :
+                    # raise Exception ("fetchHalk noStock raised an exception 2 ")
+                    return {
+                        'site' : "Halk Kitabevi",
+                        'price' : "Stokta yok",
+                        'imgUrl' : imgUrl,
+                        'link' : url,
+                    }
             except :
-                print("fetchHalk exception")
+                print("fetchHalk noStock raised an exception")
 
-            imgUrl = "https://www.halkkitabevi.com" + r.html.find('div > div > div.logo > a > img', first=True).attrs['src']
+            try :
+                cantFind = r.html.find('div.no_product_found', first=True).text.strip()
+                if cantFind != NULL & ("bulunamadı" in cantFind) :
+                    return {
+                        'site' : "Halk Kitabevi",
+                        'price' : "Bulunamadı",
+                        'imgUrl' : imgUrl,
+                        'link' : url,
+                    }
+            except :
+                raise Exception("fetchHalk cantFind raised an exception")
+                # print("fetchHalk cantFind raised an exception")
 
-            price = r.html.find('#prd_final_price_display', first=True).text.strip()
-            tlIx = price.index("TL")
-            price_ = price[:tlIx];
-            return {
-                'site' : "Halk Kitabevi",
-                'price' : float(price_.replace(",", ".").replace(" TL", "").replace("TL", "")),
-                'imgUrl' : imgUrl,
-                'link' : url,
-            }
+            try :
+                price = r.html.find('#prd_final_price_display', first=True).text.strip()
+                tlIx = price.index("TL")
+                price_ = price[:tlIx];
+                return {
+                    'site' : "Halk Kitabevi",
+                    'price' : float(price_.replace(",", ".").replace(" TL", "").replace("TL", "")),
+                    'imgUrl' : imgUrl,
+                    'link' : url,
+                }
+            except :
+                print("fetchHalk main raised an exception")
+                return {
+                    'site' : "Halk Kitabevi",
+                    'price' : "Hata",
+                    'imgUrl' : imgUrl,
+                    'link' : url,
+                }
         elif site == "kitapsec":
             url = "https://www.kitapsec.com/Arama/index.php?a="+isbn
+            # print(url)
             r = s.get(url)
             try :
                 cantFind = r.html.find('div.Ks_BodyBack > div > div > div > div:nth-child(2) > div', first=True).text.strip()
@@ -164,7 +201,7 @@ class Scraper():
             except :
                 print("fetchKitapsec exception")
 
-            imgUrl = "https:" + r.html.find('div.fullBack.Ks_HeaderColor > div > div > table > tbody > tr > td:nth-child(1) > a > img', first=True).attrs['src']
+            imgUrl = "https://cdn.kitapsec.com//temalar/KitapSec2017/img/logo.jpg"
 
             price = r.html.find('#prd_final_price_display', first=True).text.strip()
             tlIx = price.index("TL")
@@ -193,9 +230,11 @@ app.add_middleware(
 results = Scraper()
 
 
-# print("amazon : "+results.getPrice("amazon", "9750803736","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları") + "\n")
-print("halk : "+results.getPrice("halk", "9750803736","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları") + "\n")
-print("kitapsec : "+results.getPrice("kitapsec", "9750803736","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları") + "\n")
+print(results.getPrice("amazon", "9789750803734","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları"))# 9750803734 hata veriyor
+print(results.getPrice("halk", "erhfdshgfdshgfdsh","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları"))# 9750803734 hata veriyor
+# print(results.getPrice("kitapsec", "9789750803734","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları"))# 9789750803734 hata veriyor
+
+
 
 
 @app.get("/{site}/{kategori}/{altkategori}/{link}/{sorgu}/{sayfa}")
