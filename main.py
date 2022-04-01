@@ -104,13 +104,14 @@ class Scraper:
 
         return results_list
     
+    @staticmethod
     def get_price(site, isbn):
 
         s = HTMLSession()
 
         url = search_urls[site] + isbn
         
-        print(url)
+        #print(url)
 
         r = s.get(url)
 
@@ -119,382 +120,23 @@ class Scraper:
             if no_stock_phrases[site] in no_stock:
                 return return_(site, "Stokta yok", url)
         except AttributeError:
-            print("${site} noStock raised an exception")
+            pass
+            # print(f"{site} noStock raised an exception")
 
         try:
             not_found = r.html.find(not_found_queries[site], first=True).text.strip()
             if not_found_phrases[site] in not_found:
                 return return_(site, "Bulunamadı", url)
         except AttributeError:
-            print("fetchİdefix notFound raised an exception")
+            pass
+            # print(f"{site} notFound raised an exception")
 
         try:
             price = r.html.find(price_queries[site], first=True).text.strip()
             return return_(site, price.replace(",", ".").replace(" TL", "").replace("TL", ""), url)
         except AttributeError:
-            print("fetchİdefix main raised an exception")
+            # print(f"{site} main raised an exception")
             return return_(site, "Hata", url)
-
-    @staticmethod
-    def getprice(site, isbn, name, author, publisher):
-
-        s = HTMLSession()
-
-        if site == "amazon":
-            url = "https://www.amazon.com.tr/s?k=" + isbn
-            img_url = "https://m.media-amazon.com/images/G/41/logo/Amazon_com_tr_Logo._CB1198675309_.jpg"
-            print(url)
-            r = s.get(url)
-            print(r)
-
-            try:
-                no_stock = r.html.find('div.a-section.a-spacing-none.a-spacing-top-micro>div', first=True).text.strip()
-                if "mevcut değil" in no_stock:
-                    return {
-                        'site': "amazon.com.tr",
-                        'price': "Mevcut değil",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchPriceAmazon no_stock exception")
-
-            try:
-                cant_find = r.html.find('div.a-section.a-spacing-none.s-result-item.s-flex-full-width.s-border-bottom'
-                                        '-none.s-widget.s-widget-spacing-large > div > div > div > div:nth-child(1) >'
-                                        ' span:nth-child(2)',
-                                        first=True).text.strip()
-                if "sonuç yok" in cant_find:
-                    return {
-                        'site': "amazon.com.tr",
-                        'price': "Sonuç yok",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchPriceAmazon cant_find exception")
-
-            try:
-                price = r.html.find('span.a-price', first=True).text.strip()
-                tl_ix = price.index("TL")
-                price_ = price[:tl_ix]
-                return {
-                    'site': "amazon.com.tr",
-                    'price': float(price_.replace(",", ".").replace(" TL", "")),
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-            except AttributeError:
-                print("fetchAmazon main raised an exception")
-                return {
-                    'site': "amazon.com.tr",
-                    'price': "Hata",
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-
-        elif site == "halk":
-            url = "https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q=" + isbn
-            print(url)
-            r = s.get(url)
-
-            img_url = "https://www.halkkitabevi.com/u/halkkitabevi/halk-kitabevi-1580467677-1582817300-1585232584.png"
-
-            try:
-                no_stock = r.html.find('div.prd_no_sell', first=True).text.strip()
-                if "Stokta yok" in no_stock:
-                    return {
-                        'site': "Halk Kitabevi",
-                        'price': "Stokta yok",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchHalk noStock raised an exception")
-
-            try:
-                cant_find = r.html.find('div.no_product_found', first=True).text.strip()
-                if "bulunamadı" in cant_find:
-                    return {
-                        'site': "Halk Kitabevi",
-                        'price': "Bulunamadı",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchHalk cantFind raised an exception")
-
-            try:
-                price = r.html.find('#prd_final_price_display', first=True).text.strip()
-                tl_ix = price.index("TL")
-                price_ = price[:tl_ix]
-                return {
-                    'site': "Halk Kitabevi",
-                    'price': float(price_.replace(",", ".").replace(" TL", "").replace("TL", "")),
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-            except AttributeError:
-                print("fetchHalk main raised an exception")
-                return {
-                    'site': "Halk Kitabevi",
-                    'price': "Hata",
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-        elif site == "istanbulkitapcisi":
-            url = "https://www.istanbulkitapcisi.com/arama?q=" + isbn
-            print(url)
-            r = s.get(url)
-
-            img_url = "https://www.istanbulkitapcisi.com/wwwroot/images/istanbulkitapcisi-logo.png"
-
-            try:
-                no_stock = r.html.find('div.product-info > div.status > a', first=True).text.strip()
-                if "Stokta yok" in no_stock:
-                    return {
-                        'site': "İSTANBUL KİTAPÇISI",
-                        'price': "Stokta yok",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchİstanbul noStock raised an exception")
-
-            try:
-                cant_find = r.html.find('#main > div > div', first=True).text.strip()
-                if "bulunamadı" in cant_find:
-                    return {
-                        'site': "İSTANBUL KİTAPÇISI",
-                        'price': "Bulunamadı",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchİstanbul cantFind raised an exception")
-
-            try:
-                price = r.html.find('div.product-info > div.product-price', first=True).text.strip()
-                return {
-                    'site': "İSTANBUL KİTAPÇISI",
-                    'price': float(price.replace(",", ".").replace(" TL", "").replace("TL", "")),
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-            except AttributeError:
-                print("fetchİstanbul main raised an exception")
-                return {
-                    'site': "İSTANBUL KİTAPÇISI",
-                    'price': "Hata",
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-        elif site == "kitapsec":
-            url = "https://www.kitapsec.com/Arama/index.php?a=" + isbn
-            # print(url)
-            r = s.get(url)
-            try:
-                cant_find = r.html.find('div.Ks_BodyBack > div > div > div > div:nth-child(2) > div',
-                                        first=True).text.strip()
-                if "bulunamadı" in cant_find:
-                    raise Exception
-            except AttributeError:
-                raise Exception("fetchKitapsec exception")
-                # print("fetchKitapsec exception")
-
-            img_url = "https://cdn.kitapsec.com//temalar/KitapSec2017/img/logo.jpg"
-
-            price = r.html.find('#prd_final_price_display', first=True).text.strip()
-            tl_ix = price.index("TL")
-            price_ = price[:tl_ix]
-            return {
-                'site': "Kitapseç",
-                'price': float(price_.replace(",", ".").replace(" TL", "").replace("TL", "")),
-                'imgUrl': img_url,
-                'link': url,
-            }
-        elif site == "tele1":
-            url = "https://tele1kitap.com/?s=" + isbn
-            print(url)
-            r = s.get(url)
-
-            img_url = "https://tele1kitap.com/files/img/tele1kitap-logo.png"
-
-            try:
-                no_stock = r.html.find('div > div > button > span', first=True).text.strip()
-                if "TÜKENDİ" in no_stock:
-                    return {
-                        'site': "TELE1 KİTAP",
-                        'price': "TÜKENDİ",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchTele1 noStock raised an exception")
-                return {
-                    'site': "TELE1 KİTAP",
-                    'price': "Bulunamadı",
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-
-            try:
-                price = r.html.find('div.product-item-price > span', first=True).text.strip()
-                return {
-                    'site': "TELE1 KİTAP",
-                    'price': float(price.replace(",", ".").replace(" TL", "").replace("TL", "")),
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-            except AttributeError:
-                print("fetchTele1 main raised an exception")
-                return {
-                    'site': "TELE1 KİTAP",
-                    'price': "Hata",
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-        elif site == "dr":
-            url = "https://www.dr.com.tr/search?q=" + isbn
-            print(url)
-            r = s.get(url)
-
-            img_url = ""
-
-            try:
-                no_stock = r.html.find('div.prd-buttons > div > span', first=True).text.strip()
-                if "Stokta Yok" in no_stock:
-                    return {
-                        'site': "D&R",
-                        'price': "Stokta yok",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchD&R noStock raised an exception")
-
-            try:
-                cant_find = r.html.find('div > div > div > h3', first=True).text.strip()
-                if "bulunamadı" in cant_find:
-                    return {
-                        'site': "D&R",
-                        'price': "Bulunamadı",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchD&R cantFind raised an exception")
-
-            try:
-                price = r.html.find('div.prd-price-wrapper.dr-flex-start.flex-wrap > div > div', first=True).text.strip()
-                return {
-                    'site': "D&R",
-                    'price': float(price.replace(",", ".").replace(" TL", "").replace("TL", "")),
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-            except AttributeError:
-                print("fetchD&R main raised an exception")
-                return {
-                    'site': "D&R",
-                    'price': "Hata",
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-        elif site == "eganba":
-            url = "https://www.eganba.com/arama?q=" + isbn
-            print(url)
-            r = s.get(url)
-
-            img_url = "https://www.eganba.com/wwwroot/images/eganba-logo.png"
-
-            try:
-                no_stock = r.html.find('div.product-info > div.status > a', first=True).text.strip()
-                if "Stokta yok" in no_stock:
-                    return {
-                        'site': "eganba",
-                        'price': "Stokta yok",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchEganba noStock raised an exception")
-
-            try:
-                cant_find = r.html.find('#main > div > div > h4', first=True).text.strip()
-                if "bulunamadı" in cant_find:
-                    return {
-                        'site': "eganba",
-                        'price': "Bulunamadı",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchEganba cantFind raised an exception")
-
-            try:
-                price = r.html.find('div.product-info > div.product-price', first=True).text.strip()
-                return {
-                    'site': "eganba",
-                    'price': float(price.replace(",", ".").replace(" TL", "").replace("TL", "")),
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-            except AttributeError:
-                print("fetchEganba main raised an exception")
-                return {
-                    'site': "eganba",
-                    'price': "Hata",
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-        elif site == "idefix":
-            url = "https://www.idefix.com/search?q=" + isbn
-            print(url)
-            r = s.get(url)
-
-            img_url = ""
-
-            try:
-                no_stock = r.html.find('div.box-line-4 > span', first=True).text.strip()
-                if "Stokta Yok" in no_stock:
-                    return {
-                        'site': "idefix",
-                        'price': "Stokta yok",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchİdefix noStock raised an exception")
-
-            try:
-                cant_find = r.html.find('div.container.PageNotFoundCont > div > div > h3', first=True).text.strip()
-                if "bulunamadı" in cant_find:
-                    return {
-                        'site': "idefix",
-                        'price': "Bulunamadı",
-                        'imgUrl': img_url,
-                        'link': url,
-                    }
-            except AttributeError:
-                print("fetchİdefix cantFind raised an exception")
-
-            try:
-                price = r.html.find('#prices', first=True).text.strip()
-                return {
-                    'site': "idefix",
-                    'price': float(price.replace(",", ".").replace(" TL", "").replace("TL", "")),
-                    'imgUrl': img_url,
-                    'link': url,
-                }
-            except AttributeError:
-                print("fetchİdefix main raised an exception")
-                return {
-                    'site': "idefix",
-                    'price': "Hata",
-                    'imgUrl': img_url,
-                    'link': url,
-                }
 
 def return_(site, price, url):
     return {
@@ -518,13 +160,17 @@ app.add_middleware(
 )
 
 results = Scraper()
-print(results.getprice("idefix", "9786254180767", "", "", ""))
-print(results.getprice("eganba", "9786254180767", "", "", ""))
-print(results.getprice("dr", "9786254180767", "", "", ""))
-print(results.getprice("tele1", "9786254180767", "", "", ""))
-print(results.getprice("istanbulkitapcisi", "9786254180767", "", "", ""))
-print(results.getprice("amazon", "9786254180767", "", "", ""))  # 9750803734 hata veriyor
-print(results.getprice("halk", "9786254180767", "", "", ""))  # 9750803734 hata veriyor
+print(results.get_price("tele1", "9786257266994"))
+print(results.get_price("kitapsec", "9786057487117"))
+print(results.get_price("pandora", "9789756544464"))
+print(results.get_price("amazon", "9786254180767"))  # 9750803734 hata veriyor
+print(results.get_price("eganba", "9786254180767"))
+print(results.get_price("idefix", "9786254180767"))
+print(results.get_price("eganba", "9786254180767"))
+print(results.get_price("dr", "9786254180767"))
+# print(results.getprice("tele1", "9786254180767", "", "", ""))
+print(results.get_price("istanbulkitapcisi", "9786254180767"))
+print(results.get_price("halk", "9786254180767"))  # 9750803734 hata veriyor
 
 
 # print(results.getPrice("kitapsec", "9789750803734","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları"))#
