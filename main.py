@@ -103,15 +103,15 @@ class Scraper:
                     results_list.append(item)
 
         return results_list
-    
+
     @staticmethod
     def get_price(site, isbn):
 
         s = HTMLSession()
 
         url = search_urls[site] + isbn
-        
-        #print(url)
+
+        # print(url)
 
         r = s.get(url)
 
@@ -138,12 +138,14 @@ class Scraper:
             # print(f"{site} main raised an exception")
             return return_(site, "Hata", url)
 
+
 def return_(site, price, url):
     return {
         'site': site_names[site],
         'price': price,
         'link': url,
-        }
+    }
+
 
 app = FastAPI()
 
@@ -192,5 +194,5 @@ async def get_subcategories(site, index):
 
 
 @app.get("/{site}/{isbn}/{name}/{author}/{publisher}")
-async def get_results(site, isbn, name, author, publisher):
-    return results.getprice(site, isbn, name, author, publisher)
+async def get_results(site, isbn):
+    return results.get_price(site, isbn)
