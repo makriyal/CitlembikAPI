@@ -9,6 +9,9 @@ site_names = {
     "pandora" : "paNdora",
     "kitapsec" : "kitapseç",
     "tele1" : "TELE1 kitap",
+    "babil" : "babil",
+    "oda" : "oda kitap",
+    "kitapsepeti" : "kitapsepeti",
 }
 
 search_urls = {
@@ -22,6 +25,9 @@ search_urls = {
     "pandora" : "https://www.pandora.com.tr/Arama/?type=9&isbn=",
     "kitapsec" : "https://www.kitapsec.com/Arama/index.php?a=",
     "tele1" : "https://tele1kitap.com/?s=",
+    "babil" : "https://www.babil.com/search?q=",
+    "oda" : "https://www.odakitap.com/arama?q=",
+    "kitapsepeti" : "https://www.kitapsepeti.com/index.php?p=Products&q_field_active=0&ctg_id=&q=",
 }
 
 price_queries = {
@@ -35,6 +41,9 @@ price_queries = {
     "pandora" : "p.indirimliFiyat",
     "kitapsec" : "span.fiyat > font.satis",
     "tele1" : "div.product-item-price > span",
+    "babil" : "ul.price > li:nth-child(1)",
+    "oda" : "span.new-price",
+    "kitapsepeti" : "#prd_final_price_display",
 }
 
 no_stock_queries = {
@@ -48,6 +57,9 @@ no_stock_queries = {
     "pandora" : "",
     "kitapsec" : "",
     "tele1" : "div > div > button > span",
+    "babil" : "article > small",
+    "oda" : "div.status",
+    "kitapsepeti" : "div.actions > div > span > span",
 }
 
 not_found_queries = {
@@ -61,6 +73,9 @@ not_found_queries = {
     "pandora" : "p:nth-child(1) > strong",
     "kitapsec" : "div.Ks_BodyBack > div > div > div > div:nth-child(2) > div",
     "tele1" : "",
+    "babil" : "section > p",
+    "oda" : "h4",
+    "kitapsepeti" : "div.no_product_found",
 }
 
 no_stock_phrases = {
@@ -74,6 +89,9 @@ no_stock_phrases = {
     "pandora" : "",
     "kitapsec" : "",
     "tele1" : "TÜKENDİ",
+    "babil" : "Tükendi",
+    "oda" : "Stokta yok",
+    "kitapsepeti" : "Tükendi",
 }
 
 not_found_phrases = {
@@ -87,5 +105,8 @@ not_found_phrases = {
     "pandora" : "bulunamadı",
     "kitapsec" : "bulunamadı",
     "tele1" : "",
+    "babil" : "bulunamamıştır",
+    "oda" : "bulunamadı",
+    "kitapsepeti" : "bulunamadı",
 }
 

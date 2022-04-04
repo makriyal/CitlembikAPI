@@ -160,17 +160,18 @@ app.add_middleware(
 )
 
 results = Scraper()
-print(results.get_price("tele1", "9786257266994"))
-print(results.get_price("kitapsec", "9786057487117"))
-print(results.get_price("pandora", "9789756544464"))
-print(results.get_price("amazon", "9786254180767"))  # 9750803734 hata veriyor
-print(results.get_price("eganba", "9786254180767"))
-print(results.get_price("idefix", "9786254180767"))
-print(results.get_price("eganba", "9786254180767"))
-print(results.get_price("dr", "9786254180767"))
-# print(results.getprice("tele1", "9786254180767", "", "", ""))
-print(results.get_price("istanbulkitapcisi", "9786254180767"))
-print(results.get_price("halk", "9786254180767"))  # 9750803734 hata veriyor
+print(results.get_price("kitapsepeti", "9786051856810"))
+print(results.get_price("babil", "9786051856810"))
+print(results.get_price("tele1", "9786051856810"))
+print(results.get_price("kitapsec", "9786051856810"))
+print(results.get_price("pandora", "9786051856810"))
+print(results.get_price("amazon", "9786051856810"))  # 9750803734 hata veriyor
+print(results.get_price("eganba", "9786051856810"))
+print(results.get_price("idefix", "9786051856810"))
+print(results.get_price("eganba", "9786051856810"))
+print(results.get_price("dr", "9786051856810"))
+print(results.get_price("istanbulkitapcisi", "9786051856810"))
+print(results.get_price("halk", "9786051856810"))  # 9750803734 hata veriyor
 
 
 # print(results.getPrice("kitapsec", "9789750803734","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları"))#
