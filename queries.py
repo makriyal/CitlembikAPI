@@ -207,3 +207,8 @@ ind_link_attrs_nd = {
     "halk": "href",
     "kitapsec": "href",
 }
+
+last_page_queries = {
+    "halk": "a.button.button_pager.button_pager_last",
+    "kitapsec": "div.toplam_sonuc",
+}

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from requests_html import HTMLSession
+import math
 from halk_linkler import allLinksHalk, allSubCategoriesHalk
 from kitapsec_linkler import allLinksKitapsec, allSubCategoriesKitapsec
 from queries import *
@@ -12,7 +13,7 @@ class Scraper:
     def scrapedata(site, kategori, altkategori, sorgu, sayfa):
 
         s = HTMLSession()
-
+        all_list = []
         results_list = []
 
         if sorgu.isdigit():
@@ -51,6 +52,12 @@ class Scraper:
                 'author': author,
             }
             results_list.append(item)
+            all_list.append(results_list)
+            all_list.append([
+                {
+                    "lastPage": 0,
+                },
+            ])
         else:
             print("sorgu is not digit")
             if sorgu == "null":
@@ -105,96 +112,29 @@ class Scraper:
                     'author': author,
                 }
                 results_list.append(item)
-
-        # if site == "kitapsec":
-        #     r = s.get(link)
-        #     results_ = r.html.find('div.Ks_UrunSatir')
-        #     for res in results_:
-        #         item = {
-        #             'title': res.find('a.img > img', first=True).attrs['title'],
-        #             'img': res.find('a.img > img', first=True).attrs['src'],
-        #             'img_alt': res.find('a.img > img', first=True).attrs['data-src'],
-        #             'link': res.find('a.text', first=True).attrs['href'],
-        #             'publisher': res.find('span.yynImg > div > a', first=True).text.strip(),
-        #             'author': res.find('span[itemprop=author]', first=True).text.strip(),
-        #         }
-        #         results_list.append(item)
-        # elif site == "halk":
-        #     if sorgu.isdigit():
-        #         print("sorgu.isdigit()")
-        #         r = s.get("https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q=" + sorgu)
-        #         try:
-        #             title = r.html.find('div > div.col2.__col2 > h1', first=True).text.strip()
-        #         except AttributeError:
-        #             title = ''
-        #         try:
-        #             img = r.html.find('#main_img', first=True).attrs['src']
-        #         except AttributeError:
-        #             img = ''
-        #         try:
-        #             img_alt = r.html.find('#main_img', first=True).attrs['data-zoom-image']
-        #         except AttributeError:
-        #             img_alt = ''
-        #         try:
-        #             publisher = r.html.find('div.prd_brand_box > a.publisher', first=True).text.strip()
-        #         except AttributeError:
-        #             publisher = ''
-        #         try:
-        #             author = r.html.find('div.prd_info > div.writer > a', first=True).text.strip()
-        #         except AttributeError:
-        #             author = ''
-        #         item = {
-        #             'title': title,
-        #             'img': img,
-        #             'img_alt': img_alt,
-        #             'link': sorgu,
-        #             'publisher': publisher,
-        #             'author': author,
-        #         }
-        #         results_list.append(item)
-        #     else:
-        #         print("sorgu.isNotdigit()")
-        #         if sorgu == "null":
-        #             link = allLinksHalk[int(kategori)][int(altkategori)]
-        #         else:
-        #             link = "https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q=" \
-        #                    + sorgu + "&page=" + sayfa
-        #         r = s.get(link)
-        #         results_ = r.html.find('div.prd_list_container_box > div > ul > li > div')
-        #         for res in results_:
-        #             try:
-        #                 title = res.find('a>img', first=True).attrs['title']
-        #             except AttributeError:
-        #                 title = ''
-        #             try:
-        #                 img = res.find('a>img', first=True).attrs['data-src']
-        #                 img_alt = res.find('a>img', first=True).attrs['data-src']
-        #             except AttributeError:
-        #                 img = ''
-        #                 img_alt = ''
-        #             try:
-        #                 link = res.find('a', first=True).attrs['href']
-        #             except AttributeError:
-        #                 link = ''
-        #             try:
-        #                 publisher = res.find('div.prd_info > div.publisher', first=True).text.strip()
-        #             except AttributeError:
-        #                 publisher = ''
-        #             try:
-        #                 author = res.find('div.prd_info > div.writer > a', first=True).text.strip()
-        #             except AttributeError:
-        #                 author = ''
-        #             item = {
-        #                 'title': title,
-        #                 'img': img,
-        #                 'img_alt': img_alt,
-        #                 'link': link,
-        #                 'publisher': publisher,
-        #                 'author': author,
-        #             }
-        #             results_list.append(item)
-
-        return results_list
+            all_list.append(results_list)
+            last_page = 0
+            try:
+                lp0 = r.html.find(last_page_queries[site], first=True)
+                if site == "halk":
+                    lp1 = lp0.attrs['href']
+                    page_index = lp1.index("page=")
+                    lp2 = lp1[page_index:]
+                    last_page = int(lp2.replace("page=", ""))
+                else:
+                    lp1 = lp0.text.strip()
+                    page_index = lp1.index(": ")
+                    lp2 = lp1[page_index:]
+                    lp3 = lp2.replace(": ", "")
+                    last_page = math.ceil(int(lp3) / len(results_))
+            except AttributeError:
+                pass
+            all_list.append([
+                {
+                    "lastPage": last_page,
+                },
+            ])
+        return all_list
 
     @staticmethod
     def get_price(site, isbn, name, author, publisher):
@@ -264,7 +204,10 @@ app.add_middleware(
 
 results = Scraper()
 
-print(results.scrapedata("halk", "0", "0", "devlet", "1"))
+# print(results.scrapedata("halk", "2", "0", "null", "1"))
+print(results.scrapedata("kitapsec", "2", "0", "null", "1"))
+
+
 # print(results.get_price("kitapyurdu", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
 # print(results.get_price("kitapsepeti", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
 # print(results.get_price("babil", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
