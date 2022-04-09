@@ -27,12 +27,15 @@ scienceAndEngineeringLinksKitapsec = [
   'https://www.kitapsec.com/Arama/index.php?a=Kimya&AnaKat=Bilim-Kitaplari',
   'https://www.kitapsec.com/Arama/index.php?a=Makine',
   'https://www.kitapsec.com/Arama/index.php?a=Matematik&AnaKat=Bilim-Kitaplari',
-  'https://www.kitapsec.com/Arama/index.php?a=M%FChendislik&AnaKat=Tarih,Bilim-Kitaplari,Sanat-Kitaplari,AKADEMIK-Kitaplar,Genel-Kitaplar',
+  'https://www.kitapsec.com/Arama/index.php?a=M%FChendislik&AnaKat=Tarih,Bilim-Kitaplari,Sanat-Kitaplari,'
+  'AKADEMIK-Kitaplar,Genel-Kitaplar',
   'https://www.kitapsec.com/Arama/index.php?a=Pop%FCler%20Bilim',
   'https://www.kitapsec.com/Arama/index.php?a=Bilim%20Tarihi&AnaKat=Bilim-Kitaplari',
   'https://www.kitapsec.com/Arama/index.php?a=teknoloji&AnaKat=Bilim-Kitaplari',
-  'https://www.kitapsec.com/Arama/index.php?a=Sosyal%20Bilimler&AnaKat=Bilim-Kitaplari,Edebiyat,AKADEMIK-Kitaplar,Psikoloji-Sosyoloji-Felsefe-Kitaplari,Genel-Kitaplar',
-  'https://www.kitapsec.com/Arama/index.php?a=T%FDp&AnaKat=Bilim-Kitaplari,AKADEMIK-Kitaplar,Edebiyat,Tarih,Saglik-Kitaplari',
+  'https://www.kitapsec.com/Arama/index.php?a=Sosyal%20Bilimler&AnaKat=Bilim-Kitaplari,Edebiyat,AKADEMIK-Kitaplar,'
+  'Psikoloji-Sosyoloji-Felsefe-Kitaplari,Genel-Kitaplar',
+  'https://www.kitapsec.com/Arama/index.php?a=T%FDp&AnaKat=Bilim-Kitaplari,AKADEMIK-Kitaplar,Edebiyat,Tarih,'
+  'Saglik-Kitaplari',
   'https://www.kitapsec.com/Arama/index.php?a=Ziraat&AnaKat=Genel-Kitaplar,Tarih,Bilim-Kitaplari,Edebiyat',
 ]
 

@@ -12,6 +12,7 @@ site_names = {
     "babil": "babil",
     "oda": "oda kitap",
     "kitapsepeti": "kitapsepeti",
+    "kitapyurdu": "kitapyurdu.com",
 }
 
 search_urls = {
@@ -28,6 +29,7 @@ search_urls = {
     "babil": "https://www.babil.com/search?q=",
     "oda": "https://www.odakitap.com/arama?q=",
     "kitapsepeti": "https://www.kitapsepeti.com/index.php?p=Products&q_field_active=0&ctg_id=&q=",
+    "kitapyurdu": "https://www.kitapyurdu.com/index.php?route=product/search&filter_name=",
 }
 
 price_queries = {
@@ -44,6 +46,7 @@ price_queries = {
     "babil": "ul.price > li:nth-child(1)",
     "oda": "span.new-price",
     "kitapsepeti": "#prd_final_price_display",
+    "kitapyurdu": "div.price-new > span.value",
 }
 
 no_stock_queries = {
@@ -60,6 +63,7 @@ no_stock_queries = {
     "babil": "article > small",
     "oda": "div.status",
     "kitapsepeti": "div.actions > div > span > span",
+    "kitapyurdu": "",
 }
 
 not_found_queries = {
@@ -77,6 +81,7 @@ not_found_queries = {
     "babil": "section > p",
     "oda": "h4",
     "kitapsepeti": "div.no_product_found",
+    "kitapyurdu": "div.product-not-found",
 }
 
 no_stock_phrases = {
@@ -93,6 +98,7 @@ no_stock_phrases = {
     "babil": "Tükendi",
     "oda": "Stokta yok",
     "kitapsepeti": "Tükendi",
+    "kitapyurdu": "",
 }
 
 not_found_phrases = {
@@ -109,4 +115,95 @@ not_found_phrases = {
     "babil": "bulunamamıştır",
     "oda": "bulunamadı",
     "kitapsepeti": "bulunamadı",
+    "kitapyurdu": "bulamadık",
+}
+
+main_queries_nd = {
+    "halk": "div.prd_list_container_box > div > ul > li > div",
+    "kitapsec": "div.Ks_UrunSatir",
+}
+
+title_queries_nd = {
+    "halk": "a>img",
+    "kitapsec": "a.img > img",
+}
+
+title_queries_d = {
+    "halk": "div > div.col2.__col2 > h1",
+    "kitapsec": "a.text > span",
+}
+
+img_queries_nd = {
+    "halk": "a>img",
+    "kitapsec": "a.img > img",
+}
+
+img_queries_d = {
+    "halk": "#main_img",
+    "kitapsec": "a.img > img",
+}
+
+img_alt_queries_nd = {
+    "halk": "a>img",
+    "kitapsec": "a.img > img",
+}
+
+img_alt_queries_d = {
+    "halk": "a>img",
+    "kitapsec": "a.img > img",
+}
+
+ind_link_queries_nd = {
+    "halk": "a",
+    "kitapsec": "a.text",
+}
+
+publisher_queries_nd = {
+    "halk": "div.prd_info > div.publisher",
+    "kitapsec": "span.yynImg > div > a",
+}
+
+publisher_queries_d = {
+    "halk": "div.prd_brand_box > a.publisher",
+    "kitapsec": "span.yynImg > div > a > span",
+}
+
+author_queries_nd = {
+    "halk": "div.prd_info > div.writer > a",
+    "kitapsec": "span[itemprop=author]",
+}
+
+author_queries_d = {
+    "halk": "div.prd_info > div.writer > a",
+    "kitapsec": "span[itemprop=author]",
+}
+
+title_attrs_nd = {
+    "halk": "title",
+    "kitapsec": "title",
+}
+
+img_attrs_nd = {
+    "halk": "data-src",
+    "kitapsec": "src",
+}
+
+img_attrs_d = {
+    "halk": "src",
+    "kitapsec": "src",
+}
+
+img_alt_attrs_nd = {
+    "halk": "data-src",
+    "kitapsec": "data-src",
+}
+
+img_alt_attrs_d = {
+    "halk": "data-zoom-image",
+    "kitapsec": "src",
+}
+
+ind_link_attrs_nd = {
+    "halk": "href",
+    "kitapsec": "href",
 }
