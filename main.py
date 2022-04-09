@@ -63,9 +63,9 @@ class Scraper:
             if sorgu == "null":
                 print("sorgu is null")
                 if site == "halk":
-                    link = allLinksHalk[int(kategori)][int(altkategori)]
+                    link = allLinksHalk[int(kategori)][int(altkategori)] + "&page=" + sayfa
                 else:
-                    link = allLinksKitapsec[int(kategori)][int(altkategori)]
+                    link = allLinksKitapsec[int(kategori)][int(altkategori)] + sayfa + "-6-0a0-0-0-0-0-0.xhtml"
                 print(link)
             else:
                 print("sorgu is not null")
