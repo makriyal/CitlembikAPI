@@ -13,6 +13,7 @@ class Scraper:
     def scrapedata(site, kategori, altkategori, sorgu, sayfa):
 
         s = HTMLSession()
+        # s.encoding = 'utf-8'
         all_list = []
         results_list = []
 
@@ -77,10 +78,17 @@ class Scraper:
                            + to_ascii(sorgu) + "&arama=" + sayfa
                 print(link)
             r = s.get(link)
+            r.encoding = 'utf-8'
+
             results_ = r.html.find(main_queries_nd[site])
             for res in results_:
                 try:
-                    title = res.find(title_queries_nd[site], first=True).attrs[title_attrs_nd[site]]
+                    title = res.find(title_queries_nd[site], first=True).attrs[
+                        title_attrs_nd[site]]
+                    # .encode('utf-8').strip()
+                    # title = encode_utf8(title.decode("utf-8")).strip()
+                    # print(encode_utf8(title.decode("utf-8").strip()))
+                    # print(encode_utf8(str(title, "utf-8")))
                 except AttributeError:
                     title = ''
                 try:
@@ -144,7 +152,7 @@ class Scraper:
         url = search_urls[site] + " " + name + " " + author + " " + publisher \
             if site == "kitapyurdu" else search_urls[site] + isbn
 
-        # print(url)
+        print(url)
 
         r = s.get(url)
 
@@ -154,7 +162,6 @@ class Scraper:
                 return return_(site, "Stokta yok", url)
         except AttributeError:
             pass
-            # print(f"{site} noStock raised an exception")
 
         try:
             not_found = r.html.find(not_found_queries[site], first=True).text.strip()
@@ -162,15 +169,72 @@ class Scraper:
                 return return_(site, "Bulunamadı", url)
         except AttributeError:
             pass
-            # print(f"{site} notFound raised an exception")
 
         try:
             price = r.html.find(price_queries[site], first=True).text.strip()
             return return_(site, price.replace(",", ".").replace(" TL", "").replace("TL", "")
                            .replace("Site Fiyatı: ", ""), url)
         except AttributeError:
-            # print(f"{site} main raised an exception")
             return return_(site, "Hata", url)
+
+    @staticmethod
+    def get_details(site, link):
+        translator = ''
+        artist = ''
+        release = ''
+        barcode = ''
+        language = ''
+        pages = ''
+        cover = ''
+        paper = ''
+        dimensions = ''
+        loc = ''
+        edition = ''
+        s = HTMLSession()
+        r = s.get(link)
+        if site == "halk":
+            results_ = r.html.find("div.__product_fields > div")
+            for result_ in results_:
+                # print("result_ : " + str(result_).strip())
+                # print("result_ : " + result_.text)
+                splitted = result_.text.split("\n")
+                # print("splitted[0] : " + splitted[0])
+                if "Stok Kodu" or "ISBN" in splitted[0]:
+                    barcode = splitted[2]
+                elif "Boyut" or "Kitap Ebatı" in splitted[0]:
+                    dimensions = splitted[2]
+                elif "Sayfa Sayısı" in splitted[0]:
+                    pages = splitted[2]
+                elif "Basım Tarihi" in splitted[0]:
+                    release = splitted[2]
+                elif "Çeviren" in splitted[0]:
+                    translator = splitted[2]
+                elif "Resimleyen" in splitted[0]:
+                    artist = splitted[2]
+                elif "Kapak Türü" or "Cilt Durumu" in splitted[0]:
+                    cover = splitted[2]
+                elif "Kağıt Türü" in splitted[0]:
+                    paper = splitted[2]
+                elif "Dili" in splitted[0]:
+                    language = splitted[2]
+                elif "Basım Yeri" in splitted[0]:
+                    loc = splitted[2]
+                elif "Baskı" in splitted[0]:
+                    edition = splitted[2]
+        else:
+            barcode = r.html.find('div[itemprop="isbn"]', first=True).text.strip()
+        return {
+            'translator': translator,
+            'artist': artist,
+            'release': release,
+            'barcode': barcode,
+            'language': language,
+            'pages': pages,
+            'cover': cover,
+            'paper': paper,
+            'dimensions': dimensions,
+            'loc': loc,
+            'edition': edition}
 
 
 def return_(site, price, url):
@@ -186,6 +250,10 @@ def to_ascii(mystring):
         .replace("ı", "%FD").replace("ö", "%F6").replace("Ö", "%D6") \
         .replace("Ç", "%C7").replace("ç", "%E7").replace("Ğ", "%D0") \
         .replace("ğ", "%F0").replace("Ş", "%DE").replace("ş", "%FE").replace("İ", "%DD")
+
+
+def encode_utf8(mystring):
+    return mystring.replace('\xc3\xbc', "ü").replace('\xef\xbf\xbd', "Ö")
 
 
 app = FastAPI()
@@ -204,10 +272,8 @@ app.add_middleware(
 
 results = Scraper()
 
-# print(results.scrapedata("halk", "2", "0", "null", "1"))
-print(results.scrapedata("kitapsec", "2", "0", "null", "1"))
-
-
+# print(results.get_details("kitapsec", "https://www.kitapsec.com/Products/Seker-Portakali-Can-Yayinlari-48513.html"))
+# print(results.scrapedata("kitapsec", "2", "0", "null", "1"))
 # print(results.get_price("kitapyurdu", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
 # print(results.get_price("kitapsepeti", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
 # print(results.get_price("babil", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
@@ -222,11 +288,7 @@ print(results.scrapedata("kitapsec", "2", "0", "null", "1"))
 # print(results.get_price("dr", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
 # print(results.get_price("istanbulkitapcisi", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
 # print(results.get_price("halk", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
-
-
 # 9750803734 hata veriyor
-
-
 # print(results.getPrice("kitapsec", "9789750803734","835 Satır","Nazım Hikmet","Yapı Kredi Yayınları"))#
 # 9789750803734 hata veriyor
 
