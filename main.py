@@ -190,18 +190,23 @@ class Scraper:
         dimensions = ''
         loc = ''
         edition = ''
+        description = []
+
         s = HTMLSession()
         r = s.get(link)
         if site == "halk":
             results_ = r.html.find("div.__product_fields > div")
+
+            # print("results_ : " + str(results_).strip())
+            # print("results_ : " + results_.text)
             for result_ in results_:
                 # print("result_ : " + str(result_).strip())
                 # print("result_ : " + result_.text)
                 splitted = result_.text.split("\n")
                 # print("splitted[0] : " + splitted[0])
-                if "Stok Kodu" or "ISBN" in splitted[0]:
+                if "Stok Kodu" in splitted[0]:
                     barcode = splitted[2]
-                elif "Boyut" or "Kitap Ebatı" in splitted[0]:
+                elif "Boyut" in splitted[0]:
                     dimensions = splitted[2]
                 elif "Sayfa Sayısı" in splitted[0]:
                     pages = splitted[2]
@@ -211,7 +216,7 @@ class Scraper:
                     translator = splitted[2]
                 elif "Resimleyen" in splitted[0]:
                     artist = splitted[2]
-                elif "Kapak Türü" or "Cilt Durumu" in splitted[0]:
+                elif "Kapak Türü" in splitted[0]:
                     cover = splitted[2]
                 elif "Kağıt Türü" in splitted[0]:
                     paper = splitted[2]
@@ -221,8 +226,36 @@ class Scraper:
                     loc = splitted[2]
                 elif "Baskı" in splitted[0]:
                     edition = splitted[2]
+            desc = r.html.find("div.prd_description > p")
+            for i in range(len(desc)):
+                description.append(desc[i].text)
         else:
-            barcode = r.html.find('div[itemprop="isbn"]', first=True).text.strip()
+            results_ = r.html.find("div.detayBilgiDiv > div > div")
+            # print(len(results_))
+            # print(results_)
+            for i in range(len(results_)):
+                # print(i)
+                # print(i+2)
+                print(results_[i].text)
+                # print(results_[i+2].text)
+
+                if "ISBN" in results_[i].text:
+                    barcode = results_[i+2].text
+                elif "Bas�m Tarihi" in results_[i].text:
+                    release = results_[i+2].text
+                elif "Sayfa Say�s�" in results_[i].text:
+                    pages = results_[i+2].text
+                elif "Kitap Ebat�" in results_[i].text:
+                    dimensions = results_[i+2].text
+                elif "Cilt Durumu" in results_[i].text:
+                    cover = results_[i+2].text
+            desc = r.html.find("#tab1 > p")
+            for i in range(len(desc)):
+                description.append(desc[i].text)
+            # barcode = r.html.find('div[itemprop="isbn"]', first=True).text.strip()
+            # pages = r.html.find('div[itemprop="numberOfPages"]', first=True).text.strip()
+            # release = r.html.find('div[itemprop="datePublished"]', first=True).text.strip()
+            # release = r.html.find('div[itemprop="datePublished"]', first=True).text.strip()
         return {
             'translator': translator,
             'artist': artist,
@@ -234,7 +267,9 @@ class Scraper:
             'paper': paper,
             'dimensions': dimensions,
             'loc': loc,
-            'edition': edition}
+            'edition': edition,
+            'description': description
+        }
 
 
 def return_(site, price, url):
@@ -272,7 +307,8 @@ app.add_middleware(
 
 results = Scraper()
 
-# print(results.get_details("kitapsec", "https://www.kitapsec.com/Products/Seker-Portakali-Can-Yayinlari-48513.html"))
+# print(results.get_details("kitapsec", "https://www.kitapsec.com/Products/Kuyucakli-Yusuf-Yapi-Kredi-Yayinlari-42854.html"))
+# print(results.get_details("halk", "https://www.halkkitabevi.com/beyaz-zambaklar-ulkesinde-73"))
 # print(results.scrapedata("kitapsec", "2", "0", "null", "1"))
 # print(results.get_price("kitapyurdu", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
 # print(results.get_price("kitapsepeti", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
