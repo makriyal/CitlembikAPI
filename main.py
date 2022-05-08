@@ -193,8 +193,9 @@ class Scraper:
         description = []
 
         s = HTMLSession()
-        r = s.get(link)
+
         if site == "halk":
+            r = s.get("https://www.halkkitabevi.com/"+link)
             results_ = r.html.find("div.__product_fields > div")
 
             # print("results_ : " + str(results_).strip())
@@ -230,6 +231,7 @@ class Scraper:
             for i in range(len(desc)):
                 description.append(desc[i].text)
         else:
+            r = s.get("https://www.kitapsec.com/Products/" + link)
             results_ = r.html.find("div.detayBilgiDiv > div > div")
             # print(len(results_))
             # print(results_)
@@ -329,11 +331,6 @@ results = Scraper()
 # 9789750803734 hata veriyor
 
 
-@app.get("/0/{site}/{kategori}/{altkategori}/{sorgu}/{sayfa}")
-async def get_results(site, kategori, altkategori, sorgu, sayfa):
-    return results.scrapedata(site, kategori, altkategori, sorgu, sayfa)
-
-
 @app.get("/{site}/{index}")
 async def get_subcategories(site, index):
     if site == "kitapsec":
@@ -342,6 +339,16 @@ async def get_subcategories(site, index):
         return allSubCategoriesHalk[int(index)]
 
 
+@app.get("/0/{site}/{kategori}/{altkategori}/{sorgu}/{sayfa}")
+async def get_results(site, kategori, altkategori, sorgu, sayfa):
+    return results.scrapedata(site, kategori, altkategori, sorgu, sayfa)
+
+
 @app.get("/1/{site}/{isbn}/{name}/{author}/{publisher}")
 async def get_results(site, isbn, name, author, publisher):
     return results.get_price(site, isbn, name, author, publisher)
+
+
+@app.get("/2/{site}/{link}")
+async def get_details(site, link):
+    return results.get_details(site, link)
