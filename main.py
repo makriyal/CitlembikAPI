@@ -4,6 +4,7 @@ from requests_html import HTMLSession
 import math
 from halk_linkler import allLinksHalk, allSubCategoriesHalk
 from kitapsec_linkler import allLinksKitapsec, allSubCategoriesKitapsec
+from kitapyurdu_linkler import allLinksKitapyurdu, allSubCategoriesKitapyurdu
 from queries import *
 
 
@@ -13,12 +14,13 @@ class Scraper:
     def scrapedata(site, kategori, altkategori, sorgu, sayfa):
 
         s = HTMLSession()
-        # s.encoding = 'utf-8'
         all_list = []
         results_list = []
 
         if sorgu.isdigit():
             print("sorgu is digit")
+            if site == "kitapyurdu":
+                return []
             if site == "halk":
                 r = s.get("https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q=" + sorgu)
             else:
@@ -65,30 +67,25 @@ class Scraper:
                 print("sorgu is null")
                 if site == "halk":
                     link = allLinksHalk[int(kategori)][int(altkategori)] + "&page=" + sayfa
+                elif site == "kitapyurdu":
+                    link = allLinksKitapyurdu[int(kategori)][int(altkategori)] + "&page=" + sayfa
                 else:
                     link = allLinksKitapsec[int(kategori)][int(altkategori)] + sayfa + "-6-0a0-0-0-0-0-0.xhtml"
                 print(link)
             else:
                 print("sorgu is not null")
-                if site == "halk":
-                    link = "https://www.halkkitabevi.com/index.php?p=Products&q_field_active=0&q=" \
-                           + sorgu + "&page=" + sayfa
+                if site == "halk" or site == "kitapyurdu":
+                    link = search_urls[site] + sorgu + "&page=" + sayfa
                 else:
-                    link = "https://www.kitapsec.com/Arama/index.php?a=" \
-                           + to_ascii(sorgu) + "&arama=" + sayfa
+                    link = search_urls[site] + to_ascii(sorgu) + "&arama=" + sayfa
                 print(link)
             r = s.get(link)
-            r.encoding = 'utf-8'
 
             results_ = r.html.find(main_queries_nd[site])
             for res in results_:
                 try:
                     title = res.find(title_queries_nd[site], first=True).attrs[
                         title_attrs_nd[site]]
-                    # .encode('utf-8').strip()
-                    # title = encode_utf8(title.decode("utf-8")).strip()
-                    # print(encode_utf8(title.decode("utf-8").strip()))
-                    # print(encode_utf8(str(title, "utf-8")))
                 except AttributeError:
                     title = ''
                 try:
@@ -124,11 +121,26 @@ class Scraper:
             last_page = 0
             try:
                 lp0 = r.html.find(last_page_queries[site], first=True)
+
                 if site == "halk":
                     lp1 = lp0.attrs['href']
+                    print("last page link : " + lp1)
                     page_index = lp1.index("page=")
                     lp2 = lp1[page_index:]
                     last_page = int(lp2.replace("page=", ""))
+                elif site == "kitapyurdu":
+                    lp1 = lp0.attrs['href']
+                    print("last page link : " + lp1)
+                    page_index = lp1.index("page=")
+                    print("page_index : " + str(page_index))
+                    path_index = lp1.index("&path=")
+                    print("path_index : " + str(path_index))
+                    if lp1.text.contains("&path="):
+                        sub_string = lp1.substring(page_index, path_index).replaceAll("page=", "")
+                    else:
+                        sub_string = lp1.substring(page_index).replaceAll("page=", "")
+                    print("sub_string : " + sub_string)
+                    last_page = int(sub_string)
                 else:
                     lp1 = lp0.text.strip()
                     page_index = lp1.index(": ")
@@ -190,35 +202,41 @@ class Scraper:
         dimensions = ''
         loc = ''
         edition = ''
+        editor = ''
+        other = ''
+        original_name = ''
         description = []
 
         s = HTMLSession()
 
-        if site == "halk":
-            r = s.get("https://www.halkkitabevi.com/"+link)
-            results_ = r.html.find("div.__product_fields > div")
+        r = s.get(details_main_urls[site] + link)
+        results_ = r.html.find(details_main_queries[site])
 
-            # print("results_ : " + str(results_).strip())
-            # print("results_ : " + results_.text)
+        if site == "halk":
             for result_ in results_:
-                # print("result_ : " + str(result_).strip())
-                # print("result_ : " + result_.text)
                 splitted = result_.text.split("\n")
-                # print("splitted[0] : " + splitted[0])
+                print("splitted[0] : " + splitted[0])
                 if "Stok Kodu" in splitted[0]:
                     barcode = splitted[2]
                 elif "Boyut" in splitted[0]:
                     dimensions = splitted[2]
+                elif "Orijinal Adı" in splitted[0]:
+                    original_name = splitted[2]
                 elif "Sayfa Sayısı" in splitted[0]:
                     pages = splitted[2]
                 elif "Basım Tarihi" in splitted[0]:
                     release = splitted[2]
                 elif "Çeviren" in splitted[0]:
-                    translator = splitted[2]
+                    if translator != '':
+                        translator = translator + ", " + splitted[2]
+                    else:
+                        translator = splitted[2]
                 elif "Resimleyen" in splitted[0]:
                     artist = splitted[2]
                 elif "Kapak Türü" in splitted[0]:
                     cover = splitted[2]
+                elif "Derleyici" in splitted[0]:
+                    editor = splitted[2]
                 elif "Kağıt Türü" in splitted[0]:
                     paper = splitted[2]
                 elif "Dili" in splitted[0]:
@@ -227,20 +245,52 @@ class Scraper:
                     loc = splitted[2]
                 elif "Baskı" in splitted[0]:
                     edition = splitted[2]
-            desc = r.html.find("div.prd_description > p")
+                elif "Baskı" in splitted[0]:
+                    other = splitted[2]
+            desc = r.html.find(description_queries[site])
+            for i in range(len(desc)):
+                description.append(desc[i].text)
+        elif site == "kitapyurdu":
+            for result_ in results_:
+                splitted = result_.text.split("\n")
+                print("splitted[0] : " + splitted[0])
+                if "ISBN" in splitted[0]:
+                    barcode = splitted[1]
+                elif "Boyut" in splitted[0]:
+                    dimensions = splitted[1]
+                elif "Orijinal Adı" in splitted[0]:
+                    original_name = splitted[1]
+                elif "Sayfa Sayısı" in splitted[0]:
+                    pages = splitted[1]
+                elif "Yayın Tarihi" in splitted[0]:
+                    release = splitted[1]
+                elif "Çevirmen" in splitted[0]:
+                    if translator != '':
+                        translator = translator + ", " + splitted[1]
+                    else:
+                        translator = splitted[1]
+                elif "Resimleyen" in splitted[0]:
+                    artist = splitted[1]
+                elif "Cilt Tipi" in splitted[0]:
+                    cover = splitted[1]
+                elif "Derleyici" in splitted[0]:
+                    editor = splitted[1]
+                elif "Kağıt Cinsi" in splitted[0]:
+                    paper = splitted[1]
+                elif "Dili" in splitted[0]:
+                    language = splitted[1]
+                elif "Basım Yeri" in splitted[0]:
+                    loc = splitted[1]
+                elif "Baskı" in splitted[0]:
+                    edition = splitted[1]
+                elif "Baskı" in splitted[0]:
+                    other = splitted[1]
+            desc = r.html.find(description_queries[site])
             for i in range(len(desc)):
                 description.append(desc[i].text)
         else:
-            r = s.get("https://www.kitapsec.com/Products/" + link)
-            results_ = r.html.find("div.detayBilgiDiv > div > div")
-            # print(len(results_))
-            # print(results_)
             for i in range(len(results_)):
-                # print(i)
-                # print(i+2)
                 print(results_[i].text)
-                # print(results_[i+2].text)
-
                 if "ISBN" in results_[i].text:
                     barcode = results_[i+2].text
                 elif "Bas�m Tarihi" in results_[i].text:
@@ -251,13 +301,10 @@ class Scraper:
                     dimensions = results_[i+2].text
                 elif "Cilt Durumu" in results_[i].text:
                     cover = results_[i+2].text
-            desc = r.html.find("#tab1 > p")
+            desc = r.html.find(description_queries[site])
             for i in range(len(desc)):
                 description.append(desc[i].text)
-            # barcode = r.html.find('div[itemprop="isbn"]', first=True).text.strip()
-            # pages = r.html.find('div[itemprop="numberOfPages"]', first=True).text.strip()
-            # release = r.html.find('div[itemprop="datePublished"]', first=True).text.strip()
-            # release = r.html.find('div[itemprop="datePublished"]', first=True).text.strip()
+
         return {
             'translator': translator,
             'artist': artist,
@@ -270,7 +317,10 @@ class Scraper:
             'dimensions': dimensions,
             'loc': loc,
             'edition': edition,
-            'description': description
+            'editor': editor,
+            'description': description,
+            'other': other,
+            'original_name': original_name
         }
 
 
@@ -289,10 +339,6 @@ def to_ascii(mystring):
         .replace("ğ", "%F0").replace("Ş", "%DE").replace("ş", "%FE").replace("İ", "%DD")
 
 
-def encode_utf8(mystring):
-    return mystring.replace('\xc3\xbc', "ü").replace('\xef\xbf\xbd', "Ö")
-
-
 app = FastAPI()
 
 origins = [
@@ -309,8 +355,10 @@ app.add_middleware(
 
 results = Scraper()
 
-# print(results.get_details("kitapsec", "https://www.kitapsec.com/Products/Kuyucakli-Yusuf-Yapi-Kredi-Yayinlari-42854.html"))
-# print(results.get_details("halk", "https://www.halkkitabevi.com/beyaz-zambaklar-ulkesinde-73"))
+# print(results.get_details("kitapyurdu", "tanrinin-tarihi-amp-islam-hristiyanlik-ve-yahudiligin-4000-yillik-tarihi/414646.html"))
+# print(results.get_details("kitapsec", "Kuyucakli-Yusuf-Yapi-Kredi-Yayinlari-42854.html"))
+# print(results.get_details("halk", "beyaz-zambaklar-ulkesinde-73"))
+print(results.scrapedata("kitapyurdu", "2", "0", "null", "1"))
 # print(results.scrapedata("kitapsec", "2", "0", "null", "1"))
 # print(results.get_price("kitapyurdu", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
 # print(results.get_price("kitapsepeti", "9786257303576", "Pençe", "Elif Sofya", "EVEREST YAYINLARI"))
@@ -335,6 +383,8 @@ results = Scraper()
 async def get_subcategories(site, index):
     if site == "kitapsec":
         return allSubCategoriesKitapsec[int(index)]
+    elif site == "kitapyurdu":
+        return allSubCategoriesKitapyurdu[int(index)]
     elif site == "halk":
         return allSubCategoriesHalk[int(index)]
 
