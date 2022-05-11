@@ -15,6 +15,23 @@ site_names = {
     "kitapyurdu": "kitapyurdu.com",
 }
 
+main_urls = {
+    "idefix": "https://www.idefix.com/",
+    "eganba": "https://www.eganba.com/",
+    "dr": "https://www.dr.com.tr/",
+    "istanbulkitapcisi": "https://www.istanbulkitapcisi.com/",
+    "halk": "https://www.halkkitabevi.com/",
+    "kidega": "https://kidega.com/",
+    "amazon": "https://www.amazon.com.tr/",
+    "pandora": "https://www.pandora.com.tr/",
+    "kitapsec": "https://www.kitapsec.com/",
+    "tele1": "https://tele1kitap.com/",
+    "babil": "https://www.babil.com/",
+    "oda": "https://www.odakitap.com/",
+    "kitapsepeti": "https://www.kitapsepeti.com/",
+    "kitapyurdu": "https://www.kitapyurdu.com/",
+}
+
 search_urls = {
     "idefix": "https://www.idefix.com/search?q=",
     "eganba": "https://www.eganba.com/arama?q=",
@@ -118,97 +135,135 @@ not_found_phrases = {
     "kitapyurdu": "bulamadık",
 }
 
+details_main_queries = {
+    "halk": "div.__product_fields > div",
+    "kitapsec": "div.detayBilgiDiv > div > div",
+    "kitapyurdu": "tr",
+}
+
+details_main_urls = {
+    "halk": "https://www.halkkitabevi.com/",
+    "kitapsec": "https://www.kitapsec.com/Products/",
+    "kitapyurdu": "https://www.kitapyurdu.com/kitap/",
+}
+
+description_queries = {
+    "halk": "div.prd_description > p",
+    "kitapsec": "#tab1 > p",
+    "kitapyurdu": "#description_text",
+}
+
+# nd : not digit
 main_queries_nd = {
     "halk": "div.prd_list_container_box > div > ul > li > div",
     "kitapsec": "div.Ks_UrunSatir",
+    "kitapyurdu": "div.product-cr",
 }
 
 title_queries_nd = {
     "halk": "a>img",
     "kitapsec": "a.img > img",
+    "kitapyurdu": "div.image > div.cover > a.pr-img-link > img",
 }
 
 title_queries_d = {
     "halk": "div > div.col2.__col2 > h1",
     "kitapsec": "a.text > span",
+    "kitapyurdu": "",
 }
 
 img_queries_nd = {
     "halk": "a>img",
     "kitapsec": "a.img > img",
+    "kitapyurdu": "div.image > div.cover > a.pr-img-link > img",
 }
 
 img_queries_d = {
     "halk": "#main_img",
     "kitapsec": "a.img > img",
+    "kitapyurdu": "",
 }
 
 img_alt_queries_nd = {
     "halk": "a>img",
     "kitapsec": "a.img > img",
+    "kitapyurdu": "div.image > div.cover > a.pr-img-link > img",
 }
 
 img_alt_queries_d = {
     "halk": "a>img",
     "kitapsec": "a.img > img",
+    "kitapyurdu": "",
 }
 
 ind_link_queries_nd = {
     "halk": "a",
     "kitapsec": "a.text",
+    "kitapyurdu": "div.image > div.cover > a.pr-img-link",
 }
 
 publisher_queries_nd = {
     "halk": "div.prd_info > div.publisher",
     "kitapsec": "span.yynImg > div > a",
+    "kitapyurdu": "div.publisher",
 }
 
 publisher_queries_d = {
     "halk": "div.prd_brand_box > a.publisher",
     "kitapsec": "span.yynImg > div > a > span",
+    "kitapyurdu": "",
 }
 
 author_queries_nd = {
     "halk": "div.prd_info > div.writer > a",
     "kitapsec": "span[itemprop=author]",
+    "kitapyurdu": "div.author.compact.ellipsis",
 }
 
 author_queries_d = {
     "halk": "div.prd_info > div.writer > a",
     "kitapsec": "span[itemprop=author]",
+    "kitapyurdu": "",
 }
 
 title_attrs_nd = {
     "halk": "title",
     "kitapsec": "title",
+    "kitapyurdu": "alt",
 }
 
 img_attrs_nd = {
     "halk": "data-src",
     "kitapsec": "src",
+    "kitapyurdu": "src",
 }
 
 img_attrs_d = {
     "halk": "src",
     "kitapsec": "src",
+    "kitapyurdu": "",
 }
 
 img_alt_attrs_nd = {
     "halk": "data-src",
     "kitapsec": "data-src",
+    "kitapyurdu": "src",
 }
 
 img_alt_attrs_d = {
     "halk": "data-zoom-image",
     "kitapsec": "src",
+    "kitapyurdu": "",
 }
 
 ind_link_attrs_nd = {
     "halk": "href",
     "kitapsec": "href",
+    "kitapyurdu": "href",
 }
 
 last_page_queries = {
     "halk": "a.button.button_pager.button_pager_last",
     "kitapsec": "div.toplam_sonuc",
+    "kitapyurdu": "a.last",
 }
