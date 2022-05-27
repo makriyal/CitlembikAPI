@@ -206,14 +206,15 @@ def get_details(site, link):
     description = []
 
     s = HTMLSession()
-
+    print("get_details link : " + link)
     r = s.get(details_main_urls[site] + link)
+    print("get_details link : " + details_main_urls[site] + link)
     results_ = r.html.find(details_main_queries[site])
 
     if site == "halk":
         for result_ in results_:
             splitted = result_.text.split("\n")
-            print("splitted[0] : " + splitted[0])
+            # print("splitted[0] : " + splitted[0])
             if "Stok Kodu" in splitted[0]:
                 barcode = splitted[2]
             elif "Boyut" in splitted[0]:
@@ -353,7 +354,7 @@ app.add_middleware(
 
 # print(results.get_details("kitapyurdu", "tanrinin-tarihi-amp-islam-hristiyanlik-ve-yahudiligin-4000-yillik-tarihi/414646.html"))
 # print(results.get_details("kitapsec", "Kuyucakli-Yusuf-Yapi-Kredi-Yayinlari-42854.html"))
-# print(results.get_details("halk", "beyaz-zambaklar-ulkesinde-73"))
+print(get_details("halk", "oza"))
 # print(scrapedata("kitapyurdu", "2", "0", "null", "1"))
 # print(get_price("amazon", "9789752201699", "Çanlar Kimin İçin Çalıyor", "Ernest Hemingway", "Bilgi"))
 # print(results.scrapedata("kitapsec", "2", "0", "null", "1"))
@@ -397,5 +398,5 @@ async def get_results(site, isbn, name, author, publisher):
 
 
 @app.get("/2/{site}/{link}")
-async def get_details(site, link):
+async def get_detail(site, link):
     return get_details(site, link)
