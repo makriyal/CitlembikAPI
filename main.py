@@ -393,7 +393,7 @@ async def get_results(site, kategori, altkategori, sorgu, sayfa):
 
 
 @app.get("/1/{site}/{isbn}/{name}/{author}/{publisher}")
-async def get_results(site, isbn, name, author, publisher):
+async def get_result(site, isbn, name, author, publisher):
     return get_price(site, isbn, name, author, publisher)
 
 
